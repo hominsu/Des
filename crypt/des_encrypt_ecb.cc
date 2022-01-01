@@ -18,10 +18,10 @@ DesECB::~DesECB() = default;
 /**
  * @brief Initialize the key
  * @param _password 8-byte key
- * @call call std::array<uint64_t, 16> Init(const std::string &_password) in des/des.cc
+ * @call call ::std::array<uint64_t, 16> Init(const ::std::string &_password) in des/des.cc
  * @callby main.cc
  */
-void DesECB::Init(const std::string &_password) {
+void DesECB::Init(const ::std::string &_password) {
   sub_key_ = des::Init(_password);
 }
 
@@ -33,11 +33,11 @@ void DesECB::Init(const std::string &_password) {
  * @param _out_data Output data
  * @param _is_end Is end data block?
  * @return Return the size of the encrypted data, possibly greater than the input data(the end data block)
- * @retval size_t
- * @call inline void Encrypt(const void *_in, void *_out, std::array<uint64_t, 16> &_sub_key) in des/des.h
+ * @retval ::std::size_t
+ * @call inline void Encrypt(const void *_in, void *_out, ::std::array<uint64_t, 16> &_sub_key) in des/des.h
  * @callby main.cc
  */
-size_t DesECB::Encrypt(const char *_in_data, size_t _in_size, char *_out_data, bool _is_end) {
+::std::size_t DesECB::Encrypt(const char *_in_data, ::std::size_t _in_size, char *_out_data, bool _is_end) {
   if (nullptr == _in_data || nullptr == _out_data || _in_size <= 0) {
     return 0;
   }
@@ -49,11 +49,11 @@ size_t DesECB::Encrypt(const char *_in_data, size_t _in_size, char *_out_data, b
       - _in_size % des::kBlockSize);  // The size of fills, and also the content of the fill, if it is 8 then fill 8
   auto padding_offset = _in_size % des::kBlockSize; // Filling position
 
-  size_t write_size = 0;  // Number of bytes after encryption
+  ::std::size_t write_size = 0;  // Number of bytes after encryption
 
-  size_t data_size; // Data size per encryption
+  ::std::size_t data_size; // Data size per encryption
 
-  for (size_t i = 0; i < _in_size; i += des::kBlockSize) {
+  for (::std::size_t i = 0; i < _in_size; i += des::kBlockSize) {
 
     // Handling cases where the number of bytes at the end is less than 8
     if (_in_size - i < des::kBlockSize) {
@@ -100,21 +100,21 @@ size_t DesECB::Encrypt(const char *_in_data, size_t _in_size, char *_out_data, b
  * @param _out_data Output data
  * @param _is_end Is end data block?
  * @return Return the size of the decrypted data, possibly less than the input data(the end data block)
- * @retval size_t
- * @call inline void Decrypt(const void *_in, void *_out, std::array<uint64_t, 16> &_sub_key) in des/des.h
+ * @retval ::std::size_t
+ * @call inline void Decrypt(const void *_in, void *_out, ::std::array<uint64_t, 16> &_sub_key) in des/des.h
  * @callby main.cc
  */
-size_t DesECB::Decrypt(const char *_in_data, size_t _in_size, char *_out_data, bool _is_end) {
+::std::size_t DesECB::Decrypt(const char *_in_data, ::std::size_t _in_size, char *_out_data, bool _is_end) {
   if (nullptr == _out_data || nullptr == _in_data || _in_size <= 0) {
     return 0;
   }
-  size_t write_size = 0;  /// Number of bytes after decryption
+  ::std::size_t write_size = 0;  /// Number of bytes after decryption
 
   char in_buf[8]{0};
   char out_buf[8]{0};
-  size_t data_size; // Data size per encryption
+  ::std::size_t data_size; // Data size per encryption
 
-  for (size_t i = 0; i < _in_size; i += des::kBlockSize) {
+  for (::std::size_t i = 0; i < _in_size; i += des::kBlockSize) {
     // Copy input data to in buffer
     memcpy(in_buf, _in_data + write_size, des::kBlockSize);
 
@@ -130,10 +130,10 @@ size_t DesECB::Decrypt(const char *_in_data, size_t _in_size, char *_out_data, b
       if (0 == data_size) { break; }
       else if (data_size < 0) {
 #ifdef Debug
-        std::cerr << "Decrypt failed! padding size error" << std::endl;
+        ::std::cerr << "Decrypt failed! padding size error" << ::std::endl;
         break;
 #elif Release
-        throw std::runtime_error("Decrypt failed! padding size error");
+        throw ::std::runtime_error("Decrypt failed! padding size error");
 #endif
       }
     }

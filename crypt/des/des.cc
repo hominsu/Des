@@ -176,9 +176,9 @@ inline uint32_t KeyLeftShift(uint32_t &_k, const unsigned char &_shift_num) {
  * @details Initialize key, the key length is 8 bytes, excess is discarded and insufficient is 0
  * @param _password 8 bytes key
  * @return 16 wheels sub-keys
- * @retval std::array<uint64_t, 16>
+ * @retval ::std::array<uint64_t, 16>
  */
-std::array<uint64_t, 16> Init(const std::string &_password) {
+::std::array<uint64_t, 16> Init(const ::std::string &_password) {
   char k[8]{0};
 
   // excess is discarded and insufficient is 0
@@ -202,7 +202,7 @@ std::array<uint64_t, 16> Init(const std::string &_password) {
   right_key = key_56 & kL28_64_MASK;
 
   uint64_t key_48 = 0;
-  std::array<uint64_t, 16> sub_keys{0};  // sub-keys for 16 rounds of encryption and decryption
+  ::std::array<uint64_t, 16> sub_keys{0};  // sub-keys for 16 rounds of encryption and decryption
 
   // 16 rounds
   for (unsigned char i = 0; i < 16; ++i) {
@@ -276,7 +276,7 @@ uint32_t RoundFunc(const uint32_t &_r, const uint64_t &_k) {
  * @param _sub_key Sixteen Wheels sub-key
  * @param _is_encrypt Encryption/Decryption
  */
-void Crypt(const void *_in, void *_out, std::array<uint64_t, 16> &_sub_key, bool _is_encrypt) {
+void Crypt(const void *_in, void *_out, ::std::array<uint64_t, 16> &_sub_key, bool _is_encrypt) {
   char src[8]{0};
   memcpy(static_cast<void *>(src), _in, 8);
 
