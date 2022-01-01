@@ -149,9 +149,12 @@ namespace des {
 
 /**
  * @brief Convert 8 bytes to uint64_t(64 bits)
+ * @details 使用 memcpy 将指针指向的数组的 8 个字节拷贝到一个 uint64_t 中
  * @param c Char array ptr
  * @return 64 bits data
  * @retval uint64_t
+ * @callby ::std::array<uint64_t, 16> Init(const ::std::string &_password)
+ * @callby void Crypt(const void *_in, void *_out, ::std::array<uint64_t, 16> &_sub_key, bool _is_encrypt)
  */
 inline uint64_t CharToBits(const char c[8]) {
   uint64_t byte;
@@ -161,10 +164,12 @@ inline uint64_t CharToBits(const char c[8]) {
 
 /**
  * @brief Left circular shift a 28 bits sub key
+ * @details 将一个 28 位子密钥左移 _shift_num 位和右移 28 - _shift_num 位然后拼接，最后与上 28 位掩码得到循环左移后的 28 位子密钥
  * @param _k sub key
  * @param _shift_num shift digital
  * @return Left shifted sub key
  * @retval uint32_t
+ * @callby ::std::array<uint64_t, 16> Init(const ::std::string &_password)
  */
 inline uint32_t KeyLeftShift(uint32_t &_k, const unsigned char &_shift_num) {
   // k28_MASK is 0x0fffffff, it overwrites any other data larger than 28 bits
@@ -177,6 +182,9 @@ inline uint32_t KeyLeftShift(uint32_t &_k, const unsigned char &_shift_num) {
  * @param _password 8 bytes key
  * @return 16 wheels sub-keys
  * @retval ::std::array<uint64_t, 16>
+ * @call inline uint64_t CharToBits(const char c[8])
+ * @call inline uint32_t KeyLeftShift(uint32_t &_k, const unsigned char &_shift_num)
+ * @callby DesECB::Init(const ::std::string &_password) in ../des_encrypt_ceb.cc
  */
 ::std::array<uint64_t, 16> Init(const ::std::string &_password) {
   char k[8]{0};
@@ -229,10 +237,13 @@ inline uint32_t KeyLeftShift(uint32_t &_k, const unsigned char &_shift_num) {
 
 /**
  * @brief round function
+ * @details 轮函数，将输入的右半部分的数据进行扩展置换，然后再使用S-Box进行压缩置换，最后进行P置换后输出
  * @param _r Previous round function right 32 bits
  * @param _k 48 位子密钥
  * @return Encrypted 32-bit data
  * @retval uint32_t
+ * @call template<typename Te, typename ... Args> inline unsigned char ExpendBin2Dec(Te &&_e, Args ... args)
+ * @callby void Crypt(const void *_in, void *_out, ::std::array<uint64_t, 16> &_sub_key, bool _is_encrypt)
  */
 uint32_t RoundFunc(const uint32_t &_r, const uint64_t &_k) {
   // extended permutation，32-bit data extended to 48 bits
@@ -271,10 +282,15 @@ uint32_t RoundFunc(const uint32_t &_r, const uint64_t &_k) {
 
 /**
  * @brief Encryption and decryption, single encryption and decryption of 8 bytes
+ * @details DES 加解密，先将输入从 chars 转为 bits，然后通过初始置换后，将右半32位数据送入轮函数，得到结果后与左半部分异或，最后交换左半和右半部分。16轮计算完成后，交换左半和右半部分，经过逆初始置换后得到结果
  * @param _in Input Data
  * @param _out Output Data
  * @param _sub_key Sixteen Wheels sub-key
  * @param _is_encrypt Encryption/Decryption
+ * @call inline uint64_t CharToBits(const char c[8])
+ * @call uint32_t RoundFunc(const uint32_t &_r, const uint64_t &_k)
+ * @callby inline void Encrypt(const void *_in, void *_out, ::std::array<uint64_t, 16> &_sub_key)
+ * @callby inline void Decrypt(const void *_in, void *_out, ::std::array<uint64_t, 16> &_sub_key)
  */
 void Crypt(const void *_in, void *_out, ::std::array<uint64_t, 16> &_sub_key, bool _is_encrypt) {
   char src[8]{0};

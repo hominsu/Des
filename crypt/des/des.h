@@ -31,22 +31,27 @@ constexpr ::std::size_t kBlockSize = 8;  // 块大小
 
 /**
  * @brief Unsigned Binary to Decimal
+ * @details 这里使用了 c++17 的折叠表达式，编译期展开后为：0 + ((_e >> _index_1) & 0x1 * 1) + ((_e >> _index_2) & 0x1 * (BCD_8421 *= 2)）+ ((_e >> _index_3) & 0x1 * (BCD_8421 *= 2))···, 即：0 + ((_e >> _index_1) & 0x1 * 1) + ((_e >> _index_2) & 0x1 * 2）+ ((_e >> _index_3) & 0x1 * 4） ···
  * @tparam Te Array of data expanded by extended permutation
  * @tparam Args Index of the data to be transformed
  * @param _e Data extended by extended permutation
- * @param args Index of the data to be transformed, from high to low
+ * @param _index Index of the data to be transformed, from high to low
  * @return Decimal
  * @retval unsigned char
  * @callby uint32_t RoundFunc(const uint32_t &_r, const uint64_t &_k)
  */
-template<typename Te, typename ... Args>
-inline unsigned char ExpendBin2Dec(Te &&_e, Args ... args) {
+template<typename Te, typename ... Index>
+inline unsigned char ExpendBin2Dec(Te &&_e, Index ... _index) {
+  // 这里使用了 c++17 的折叠表达式，编译期展开后为：0 + ((_e >> _index_1) & 0x1 * 1) +
+  // ((_e >> _index_2) & 0x1 * (BCD_8421 *= 2)）+ ((_e >> _index_3) & 0x1 * (BCD_8421 *= 2)） ···
+  // 即：0 + ((_e >> _index_1) & 0x1 * 1) + ((_e >> _index_2) & 0x1 * 2）+ ((_e >> _index_3) & 0x1 * 4） ···
   unsigned char BCD_8421 = 0;
-  return (0 + ... + ((_e >> args) & 0x1 * (BCD_8421 > 1 ? BCD_8421 *= 2 : ++BCD_8421)));
+  return (0 + ... + ((_e >> _index) & 0x1 * (BCD_8421 > 1 ? BCD_8421 *= 2 : ++BCD_8421)));
 }
 
 /**
  * @brief Convert 8 bytes to uint64_t(64 bits)
+ * @details 使用 memcpy 将指针指向的数组的 8 个字节拷贝到一个 uint64_t 中
  * @param c Char array ptr
  * @return 64 bits data
  * @retval uint64_t

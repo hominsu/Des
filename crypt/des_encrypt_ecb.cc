@@ -27,7 +27,7 @@ void DesECB::Init(const ::std::string &_password) {
 
 /**
  * @brief Encrypt a block of data, encrypt to end will fill data
- * @detail The end of the encryption is padded using the PKCS7 Padding data padding algorithm
+ * @details 当加密到文件末尾时，使用 PKCS7 数据填充算法对末尾进行填充，例如：缺一个字节就填 1，不缺也要填一个 Block Size
  * @param _in_data Input data
  * @param _in_size Input data size
  * @param _out_data Output data
