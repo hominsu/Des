@@ -74,10 +74,8 @@ int main(int _argc, char *_argv[]) {
   data_bytes = ifs.tellg();
   ifs.seekg(0, ::std::ios::beg);
 
-
   crypt::DesECB des_ecb;
   des_ecb.Init(password);
-
 
   while (true) {
     if (ifs.eof()) {
@@ -129,5 +127,5 @@ int main(int _argc, char *_argv[]) {
   return 0;
 }
 
-// 加密: build/Des -e test/src test/enc 123456
-// 解密: build/Des -d test/enc test/dec 123456
+// 加密: build/Des -e 12345678 test/src test/enc
+// 解密: build/Des -d 12345678 test/enc test/dec
